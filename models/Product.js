@@ -9,12 +9,27 @@ class Product extends Model {}
 // set up fields and rules for Product model
 Product.init(
   {
-    // define columns
     id: {
       type: DataTypes.INTEGER,
       notNull: true,
       autoIncrement: true,
       primaryKey: true,
+    },
+    produc_name: {
+      type: DataTypes.STRING,
+      notNull: true,
+    },
+    price: {
+      type: DataTypes.DECIMAL,
+      notNull: true,
+    },
+    stock: {
+      type: DataTypes.INTEGER,
+      notNull: true,
+    },
+    category_id: {
+      type: DataTypes.INTEGER,
+      notNull: true,
     },
   },
   {
