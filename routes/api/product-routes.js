@@ -6,18 +6,12 @@ const { Product, Category, Tag, ProductTag } = require("../../models");
 // get all products
 router.get("/", async (req, res) => {
   // find all products
-  // include its associated Category and Tag data
   try {
     const findAllProducts = await Product.findAll({
       include: [
-        // direct association
+        // include its associated Category and Tag data
         { model: Category },
         { model: Tag, through: ProductTag },
-        // {
-        //   // No tag column in product table
-        //   model: Tag,
-        //   through: ProductTag,
-        // },
       ],
       attributes: {
         exclude: ["categoryId", "category_id"],
@@ -29,10 +23,23 @@ router.get("/", async (req, res) => {
   }
 });
 
-// get one product
-router.get("/:id", (req, res) => {
-  // find a single product by its `id`
-  // be sure to include its associated Category and Tag data
+// find a single product by its `id`
+router.get("/:id", async (req, res) => {
+  try {
+    const findProductByPk = await Product.findByPk(req.params.id, {
+      // include its associated Category and Tag data
+      include: [{ model: Category }, { model: Tag, through: ProductTag }],
+      attributes: {
+        exclude: ["categoryId", "category_id"],
+      },
+    });
+    if (!findProductByPk) {
+      res.status(404).json({ message: "No product with this id found" });
+    }
+    res.status(200).json(findProductByPk);
+  } catch (err) {
+    res.status(500).json(err);
+  }
 });
 
 // create new product
@@ -117,10 +124,10 @@ router.delete("/:id", async (req, res) => {
         id: req.params.id,
       },
     });
-    if (productDelete.affectedRows > 0) {
+    if (productDelete) {
       res.status(200).json(productDelete);
     } else {
-      res.send("Could not delete item with that ID");
+      res.status(404).json({ message: "Could not delete item with that ID" });
     }
   } catch (err) {
     res.status(500).json(err);
