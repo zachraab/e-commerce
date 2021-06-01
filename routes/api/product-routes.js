@@ -6,18 +6,22 @@ const { Product, Category, Tag, ProductTag } = require("../../models");
 // get all products
 router.get("/", async (req, res) => {
   // find all products
-  // be sure to include its associated Category and Tag data
+  // include its associated Category and Tag data
   try {
     const findAllProducts = await Product.findAll({
       include: [
         // direct association
-        Category,
-        {
-          // No tag column in product table
-          model: Tag,
-          through: ProductTag,
-        },
+        { model: Category },
+        { model: Tag, through: ProductTag },
+        // {
+        //   // No tag column in product table
+        //   model: Tag,
+        //   through: ProductTag,
+        // },
       ],
+      attributes: {
+        exclude: ["categoryId", "category_id"],
+      },
     });
     res.status(200).json(findAllProducts);
   } catch (err) {
